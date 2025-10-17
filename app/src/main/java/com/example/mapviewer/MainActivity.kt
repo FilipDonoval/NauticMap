@@ -17,6 +17,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.inputmethodservice.Keyboard
 import android.util.Log
 import androidx.annotation.Nullable
 import androidx.compose.foundation.Image
@@ -50,6 +51,7 @@ import java.sql.Blob
 import kotlin.math.*
 import kotlin.system.measureNanoTime
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -60,6 +62,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
@@ -84,7 +87,13 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TimeInput
+import androidx.compose.ui.focus.onFocusChanged
+
+
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.window.PopupProperties
@@ -430,7 +439,7 @@ class Pins() {
 
     fun popPin() {
         if (listOfPins.isNotEmpty()) {
-            listOfPins.removeLast()
+            listOfPins.removeAt(listOfPins.lastIndex)
         }
     }
 
@@ -506,6 +515,9 @@ class Pins() {
 
 @Composable
 fun DraggableMap(context: Context) {
+
+
+
 
 
     var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, context)) }
@@ -689,11 +701,14 @@ fun DraggableMap(context: Context) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = 50.dp)
+
                 ,
                 //horizontalArrangement = Arrangement.spacedBy(15.dp)
                 horizontalArrangement = Arrangement.End
 
             ) {
+
+
 
 
                 Button(
@@ -714,7 +729,9 @@ fun DraggableMap(context: Context) {
                         text = "Undo",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.DarkGray
+                        color = Color.DarkGray,
+                        maxLines = 1,
+                        softWrap = false
                     )
                 }
 
@@ -747,10 +764,34 @@ fun DraggableMap(context: Context) {
 
         }
 
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        var isFocused by remember { mutableStateOf(false) }
+        val focusManager = LocalFocusManager.current
+
+        if (isFocused) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        // This makes clicks on empty space dismiss the keyboard
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        focusManager.clearFocus()
+                    }
+                    .background(Color.Green.copy(alpha = 0.5f))
+
+            )
+        }
+
+        // Top box of the screen
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
+                .height(350.dp)
                 .align(Alignment.TopCenter)
                 .background(Color.Blue.copy(alpha = 0.7f))
         ) {
@@ -762,7 +803,92 @@ fun DraggableMap(context: Context) {
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold)
                 Text("AAAAA")
-                Text("bbbbb")
+
+                var text = remember { mutableStateOf("") }
+
+                Text("Hours")
+
+
+                //val keyboardController = LocalSoftwareKeyboardController.current
+
+                OutlinedTextField(
+                    value = text.value,
+                    onValueChange = { if (it.length <= 2 ) text.value = it },
+                    //label = { Text("00") },
+                    placeholder = { Text("00") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(40.dp)
+                        //.padding(10.dp)
+
+                )
+                Log.d("s", "$text")
+
+
+                Text("Minutes")
+
+
+                //val keyboardController = LocalSoftwareKeyboardController.current
+
+                OutlinedTextField(
+                    value = text.value,
+                    onValueChange = { if (it.length <= 2 ) text.value = it },
+                    //label = { Text("00") },
+                    placeholder = { Text("00") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    textStyle = TextStyle(fontSize = 18.sp),
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(40.dp)
+                    //.padding(10.dp)
+
+                )
+
+                //var isFocused by remember { mutableStateOf(false) }
+
+                Box(
+                    modifier = Modifier
+                        .border(width = if(isFocused) 3.dp else 1.dp, Color.Gray, shape = RoundedCornerShape(5.dp))
+                        .width(100.dp)
+                        .height(40.dp),
+                    contentAlignment = Alignment.Center
+                )
+                {
+                    if (text.value.isEmpty()) {
+                        Text(
+                            text = "00",
+                            fontSize = 18.sp, color = Color.LightGray,
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .fillMaxSize()
+                                .padding(bottom = 2.dp)
+                                //.align(Alignment.Center)
+                            )
+
+                    }
+
+                    BasicTextField(
+                        value = text.value,
+                        onValueChange = { if (it.length <= 2) text.value = it },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        textStyle = TextStyle(fontSize = 18.sp, color = Color.White),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(10.dp)
+                            .onFocusChanged{ focusState ->
+                                isFocused = focusState.isFocused
+                            }
+                            //.align(Alignment.Center)
+                    )
+
+
+
+                }
+
+
 
 
 
