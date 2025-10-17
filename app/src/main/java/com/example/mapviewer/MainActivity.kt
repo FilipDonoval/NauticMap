@@ -50,16 +50,44 @@ import java.sql.Blob
 import kotlin.math.*
 import kotlin.system.measureNanoTime
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextField
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+
+import androidx.compose.material3.TextField
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.window.PopupProperties
 
 
 // Stores name and some of database useful functions
@@ -137,15 +165,20 @@ class MainActivity : ComponentActivity() {
         val queryDB = db.runQuery("zoom_level, tile_row")
 
 
+
         setContent {
             MapViewerTheme {
 
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ListQuery(queryDB = queryDB, modifier = Modifier.padding(innerPadding))
-                }
+                //Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    //ListQuery(queryDB = queryDB, modifier = Modifier.padding(innerPadding))
+
+
+
+                //}
 
                 DraggableMap(this)
+                
             }
         }
     }
@@ -160,6 +193,8 @@ fun ListQuery(queryDB: List<String>, modifier: Modifier = Modifier) {
         }
     }
 }
+
+
 
 
 
@@ -391,6 +426,12 @@ class Pins() {
 
     fun clearPins() {
         listOfPins.clear()
+    }
+
+    fun popPin() {
+        if (listOfPins.isNotEmpty()) {
+            listOfPins.removeLast()
+        }
     }
 
     fun recalculatePins(zoom_level: Int, min_column: Int, max_row: Int) {
@@ -635,32 +676,77 @@ fun DraggableMap(context: Context) {
             }
         }
 
+        // Bottom box of the screen
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
+                .height(200.dp)
                 .align(Alignment.BottomCenter)
                 .background(Color.Red.copy(alpha = 0.7f))
 
         ) {
-            Button(
-                onClick = {
-                    pins.clearPins()
-                },
+            Row(
                 modifier = Modifier
-                    .height(50.dp)
-                    .offset(x = -20.dp)
-                    .offset(y = (-30).dp)
-                    .align(Alignment.BottomEnd)
+                    .fillMaxSize()
+                    .padding(bottom = 50.dp)
+                ,
+                //horizontalArrangement = Arrangement.spacedBy(15.dp)
+                horizontalArrangement = Arrangement.End
+
             ) {
-                Text(
-                    text = "Clear Pins",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.DarkGray
-                )
+
+
+                Button(
+                    onClick = {
+                        pins.popPin()
+                    },
+                    modifier = Modifier
+                        .height(80.dp)
+                        .width(110.dp)
+                        .padding(10.dp)
+                    //.offset(x = -150.dp)
+                    //.offset(y = (-30).dp)
+                    //.align(Alignment.BottomEnd)
+                    ,
+                    shape = RoundedCornerShape(25.dp)
+                ) {
+                    Text(
+                        text = "Undo",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.DarkGray
+                    )
+                }
+
+
+                Button(
+                    onClick = {
+                        pins.clearPins()
+                    },
+                    modifier = Modifier
+                        .height(80.dp)
+                        .width(110.dp)
+                        .padding(10.dp)
+                        //.offset(x = -20.dp)
+                        //.offset(y = (-30).dp)
+                        //.align(Alignment.BottomEnd)
+                        ,shape = RoundedCornerShape(25.dp)
+                ) {
+                    Text(
+                        text = "Clear",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.DarkGray,
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                }
+
+
             }
+
         }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -677,9 +763,15 @@ fun DraggableMap(context: Context) {
                     fontWeight = FontWeight.Bold)
                 Text("AAAAA")
                 Text("bbbbb")
-            }
 
+
+
+            }
         }
+
+
+
+
     }
 
 
