@@ -63,6 +63,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
@@ -94,6 +95,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.window.PopupProperties
@@ -768,10 +770,11 @@ fun DraggableMap(context: Context) {
 
 
         ////////////////////////////////////////////////////////////////////////////////
-        var isFocused by remember { mutableStateOf(false) }
+        var hoursInputFocused by remember { mutableStateOf(false) }
+        var minutesInputFocused by remember { mutableStateOf(false) }
         val focusManager = LocalFocusManager.current
 
-        if (isFocused) {
+        if (hoursInputFocused or minutesInputFocused) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -802,106 +805,115 @@ fun DraggableMap(context: Context) {
                     //modifier = Modifier.offset(x = 20.dp, y = 50.dp),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold)
-                Text("AAAAA")
-
-                var text = remember { mutableStateOf("") }
-
-                Text("Hours")
+                //Text("AAAAA")
 
 
-                //val keyboardController = LocalSoftwareKeyboardController.current
-
-                OutlinedTextField(
-                    value = text.value,
-                    onValueChange = { if (it.length <= 2 ) text.value = it },
-                    //label = { Text("00") },
-                    placeholder = { Text("00") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(40.dp)
-                        //.padding(10.dp)
-
-                )
-                Log.d("s", "$text")
 
 
-                Text("Minutes")
 
-
-                //val keyboardController = LocalSoftwareKeyboardController.current
-
-                OutlinedTextField(
-                    value = text.value,
-                    onValueChange = { if (it.length <= 2 ) text.value = it },
-                    //label = { Text("00") },
-                    placeholder = { Text("00") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    textStyle = TextStyle(fontSize = 18.sp),
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(40.dp)
-                    //.padding(10.dp)
-
-                )
+                var hoursInput by remember { mutableStateOf("") }
+                var minutesInput by remember { mutableStateOf("") }
 
                 //var isFocused by remember { mutableStateOf(false) }
-
-                Box(
+                Row(
                     modifier = Modifier
-                        .border(width = if(isFocused) 3.dp else 1.dp, Color.Gray, shape = RoundedCornerShape(5.dp))
-                        .width(100.dp)
-                        .height(40.dp),
-                    contentAlignment = Alignment.Center
+                        //.padding(10.dp)
+                        ,
+                    horizontalArrangement = Arrangement.spacedBy(15.dp)
                 )
                 {
-                    if (text.value.isEmpty()) {
-                        Text(
-                            text = "00",
-                            fontSize = 18.sp, color = Color.LightGray,
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .fillMaxSize()
-                                .padding(bottom = 2.dp)
-                                //.align(Alignment.Center)
-                            )
+                    Text("Hours")
+                    Text("Minutes")
+                }
+                Row(
+                    modifier = Modifier
+                        //.padding(10.dp)
+                        ,
+                    horizontalArrangement = Arrangement.spacedBy(15.dp)
+                )
+                {
 
+                    Box( // Hours input
+                        modifier = Modifier
+                            .border(width = if(hoursInputFocused) 3.dp else 1.dp, Color.Gray, shape = RoundedCornerShape(5.dp))
+                            .width(40.dp)
+                            .height(40.dp),
+                        contentAlignment = Alignment.Center
+                    )
+                    {
+                        if (hoursInput.isEmpty()) {
+                            Text(
+                                text = "00",
+                                fontSize = 18.sp, color = Color.LightGray,
+                                modifier = Modifier
+                                    .padding(start = 10.dp, top = 8.dp)
+                                    .fillMaxSize()
+                            )
+                        }
+                        BasicTextField(
+                            value = hoursInput,
+                            onValueChange = { if (it.length <= 2) hoursInput = it },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone =  {
+                                    focusManager.clearFocus()
+                                }
+                            ),
+                            textStyle = TextStyle(fontSize = 18.sp, color = Color.White),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp)
+                                .onFocusChanged{ focusState ->
+                                    hoursInputFocused = focusState.isFocused
+                                }
+                        )
                     }
 
-                    BasicTextField(
-                        value = text.value,
-                        onValueChange = { if (it.length <= 2) text.value = it },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        textStyle = TextStyle(fontSize = 18.sp, color = Color.White),
+                    Box( // Minutes input
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(10.dp)
-                            .onFocusChanged{ focusState ->
-                                isFocused = focusState.isFocused
-                            }
-                            //.align(Alignment.Center)
+                            .border(width = if(minutesInputFocused) 3.dp else 1.dp, Color.Gray, shape = RoundedCornerShape(5.dp))
+                            .width(40.dp)
+                            .height(40.dp),
+                        contentAlignment = Alignment.Center
                     )
-
-
-
+                    {
+                        if (minutesInput.isEmpty()) {
+                            Text(
+                                text = "00",
+                                fontSize = 18.sp, color = Color.LightGray,
+                                modifier = Modifier
+                                    .padding(start = 10.dp, top = 8.dp)
+                                    .fillMaxSize()
+                            )
+                        }
+                        BasicTextField(
+                            value = minutesInput,
+                            onValueChange = { if (it.length <= 2) minutesInput = it },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone =  {
+                                    focusManager.clearFocus()
+                                }
+                            ),
+                            textStyle = TextStyle(fontSize = 18.sp, color = Color.White),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp)
+                                .onFocusChanged{ focusState ->
+                                    minutesInputFocused = focusState.isFocused
+                                }
+                        )
+                    }
                 }
-
-
-
-
-
             }
         }
-
-
-
-
     }
-
-
-
 }
 
 
