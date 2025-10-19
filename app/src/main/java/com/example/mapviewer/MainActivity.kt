@@ -519,12 +519,14 @@ class Pins() {
 fun DraggableMap(context: Context) {
 
 
+    var travel_time by remember {mutableStateOf("00:00:00")}
 
 
 
     var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, context)) }
     var zoom_level by remember {mutableIntStateOf(10)}
     var pins by remember {mutableStateOf(Pins())}
+
 
     val (max_zoom, min_zoom) = remember {
         val dbHelper = DatabaseHelper(context)
@@ -852,7 +854,10 @@ fun DraggableMap(context: Context) {
                         }
                         BasicTextField(
                             value = hoursInput,
-                            onValueChange = { if (it.length <= 2) hoursInput = it },
+                            onValueChange = { if (it.length <= 2) {
+                                hoursInput = it
+                                travel_time = travel_time.replaceRange(0..1, hoursInput.padStart(2, '0'))
+                            } },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number,
                                 imeAction = ImeAction.Done
@@ -871,6 +876,8 @@ fun DraggableMap(context: Context) {
                                 }
                         )
                     }
+
+
 
                     Box( // Minutes input
                         modifier = Modifier
@@ -891,7 +898,10 @@ fun DraggableMap(context: Context) {
                         }
                         BasicTextField(
                             value = minutesInput,
-                            onValueChange = { if (it.length <= 2) minutesInput = it },
+                            onValueChange = { if (it.length <= 2) {
+                                minutesInput = it
+                                travel_time = travel_time.replaceRange(3..4, minutesInput.padStart(2, '0'))
+                            } },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number,
                                 imeAction = ImeAction.Done
@@ -910,6 +920,8 @@ fun DraggableMap(context: Context) {
                                 }
                         )
                     }
+
+                    Log.d("time", "time to travel: $travel_time")
                 }
             }
         }
