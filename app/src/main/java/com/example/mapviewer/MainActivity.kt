@@ -100,10 +100,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.window.PopupProperties
 
-/*
+
+// Stores name and some of database useful functions
 class DatabaseHelper(private val context: Context){
     private val dbName = "hr.mbtiles"
     private val dbPath = context.getDatabasePath(dbName).path
+
 
     fun copyDatabaseIfNeeded() {
         val dbFile = context.getDatabasePath(dbName)
@@ -121,10 +123,10 @@ class DatabaseHelper(private val context: Context){
     fun getDatabasePath(): String {
         return dbPath
     }
-}
-*/
 
-/*
+}
+
+
 class QueryDatabase(private val context: Context) {
 
     fun runQuery(toQuery: String): List<String> {
@@ -146,12 +148,22 @@ class QueryDatabase(private val context: Context) {
             results.add(row)
         }
 
+
         cursor.close()
         db.close()
 
         return results
     }
-}*/
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -160,9 +172,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        /*val db = QueryDatabase(this)
+        val db = QueryDatabase(this)
         val queryDB = db.runQuery("zoom_level, tile_row")
-        */
+
 
 
         setContent {
@@ -176,37 +188,7 @@ class MainActivity : ComponentActivity() {
 
                 //}
 
-                var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, this)) }
-                var pins by remember {mutableStateOf(Pins())}
-
-
-                DraggableMap(this, parentTileMap = tileMap, onTileMapChange = { tileMap = it }, pins = pins)
-                //DraggableMap(this)
-
-
-                Overlay(pins = pins)
-
-
-                /*Box(
-                    modifier = Modifier
-                        .size(width = 100.dp, height = 200.dp)
-                        .background(color = Color.Red)
-                        .pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent()
-                                    event.changes.forEach { it.consume() }
-                                }
-                            }
-                        }
-                )
-
-
-                Button(
-                    modifier = Modifier
-                        .size(50.dp),
-                    onClick = {Log.d("dsafkj", "dsakjldsajkldsajkldsajkl")}
-                ) { }*/
+                DraggableMap(this)
                 
             }
         }
@@ -215,96 +197,20 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun Overlay(pins: Pins) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    )
-    {
-        TopBar(
-            modifier = Modifier.align(Alignment.TopStart),
-            pins = pins
-        )
-
-        BottomBar(
-            modifier = Modifier.align(Alignment.BottomStart)
-        )
-    }
-}
-
-
-@Composable
-fun TopBar(modifier: Modifier = Modifier, pins: Pins) {
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height = 250.dp)
-            .background(color = Color(255, 255, 255, 200))
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        event.changes.forEach { it.consume() }
-                    }
-                }
-            }
-    )
-    {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 25.dp)
-        )
-        {
-            Text(
-                text = "Distance: ${round(pins.calculateDistance() * 100) / 100} knots"
-            )
-            Row()
-            {
-                Button(
-                    modifier = Modifier
-                        .height(50.dp),
-                    onClick = {
-                        pins.clearPins()
-                    }
-                ) { Text("Clear")}
-                Button(
-                    modifier = Modifier
-                        .height(50.dp),
-                    onClick = {
-                        pins.popPin()
-                    }
-                ) { Text("Undo")}
-            }
-
+fun ListQuery(queryDB: List<String>, modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier) {
+        items(queryDB) {tile ->
+            Text(text = tile)
         }
     }
 }
 
-@Composable
-fun BottomBar(modifier: Modifier = Modifier)
-{
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height = 250.dp)
-            .background(Color(200, 200, 200, 200))
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        event.changes.forEach { it.consume() }
-                    }
-                }
-            }
-    )
-}
 
 
 
 
-/*
+
+
 class Tile(val column: Int, val row: Int, val zoom: Int, private val context: Context) {
 
     var image: Bitmap? by mutableStateOf(null)
@@ -370,18 +276,16 @@ class TileMap(val zoom: Int, val map_x_init: Double = 0.0, val map_y_init: Doubl
     val screenWidth: Int get() = context.resources.displayMetrics.widthPixels
     val screenHeight: Int get() = context.resources.displayMetrics.heightPixels
 
-    /*val grid_column: Int = screenWidth / 2 / grid_offset
+    val grid_column: Int = screenWidth / 2 / grid_offset
     val grid_row: Int = screenHeight / 2 / grid_offset
     val last_grid_column: Int = screenWidth / 2 / grid_offset
     val last_grid_row: Int = screenHeight / 2 / grid_offset
-    val first_time = true*/
-
 
     val render_distance_x: Int = 3
     val render_area_x: Int = render_distance_x * 2 + 1
     val render_distance_y: Int = 6
     val render_area_y: Int = render_distance_y * 2 + 1
-
+    val first_time = true
 
     val tiles = mutableMapOf<Pair<Int, Int>, Tile>()
 
@@ -397,6 +301,7 @@ class TileMap(val zoom: Int, val map_x_init: Double = 0.0, val map_y_init: Doubl
         val cursor = db.rawQuery(queryString, null)
 
         if (cursor.moveToFirst()){
+
             max_row = cursor.getInt(0)
             min_column = cursor.getInt(1)
         }
@@ -426,31 +331,43 @@ class TileMap(val zoom: Int, val map_x_init: Double = 0.0, val map_y_init: Doubl
     }
 
     fun xyToLatLong(x: Double = screenWidth / 2.0, y: Double = screenHeight / 2.0): Pair<Double, Double> {
-        //Log.d("cords", "$x, $y")
+        //Log.d("a","a")
+        Log.d("cords", "$x, $y")
         val scaled_mouse_x = (x - map_x) % 256
         val scaled_mouse_y = (y - map_y) % 256
+        //Log.d("", "$scaled_mouse_x, $scaled_mouse_y")
 
         var current_tile_column: Int = ((x - map_x) / 256).toInt()
         current_tile_column = min_column + current_tile_column
         var current_tile_row: Int = ((y - map_y) / 256).toInt()
         current_tile_row = max_row - current_tile_row
 
+        //Log.d("", "$current_tile_column, $current_tile_row")
+
+
         val n: Double = 2.0.pow(zoom)
+        //Log.d("", "n: $n")
+
         val lat_part: Double = (current_tile_row + 1 - scaled_mouse_y / 256) / n
         val long_part: Double = (current_tile_column + scaled_mouse_x / 256) / n
-
+        //Log.d("", "$lat_part, $long_part")
         val lat = Math.toDegrees(atan(sinh(PI * (1 - 2 * lat_part)))) * -1
         val long = long_part * 360 - 180
+        //Log.d("xyToLatLong", "Lat: $lat, Long: $long")
+        Log.d("go", "go $lat, $long")
 
-        //Log.d("go", "go $lat, $long")
-        //latLongToxy(lat, long)
+        latLongToxy(lat, long)
+
+        //Log.d("a","a")
         return Pair(lat, long)
     }
 
     fun latLongToxy(lat: Double, long: Double): Pair<Double, Double> {
         val n: Double = 2.0.pow(zoom)
+
         val long_part = (180 + long) / 360
         val lat_part = (PI + asinh(tan(Math.toRadians(lat)))) / (-2 * PI) * -1
+
 
         val tile_column = floor(long_part * n)
         val tile_row = ceil(n * lat_part - 1)
@@ -458,10 +375,16 @@ class TileMap(val zoom: Int, val map_x_init: Double = 0.0, val map_y_init: Doubl
         var scaled_mouse_x: Double = round((long_part * n - tile_column) * 256)
         var scaled_mouse_y: Double = round((lat_part * n - tile_row - 1) * -256)
 
+
+
         scaled_mouse_x += (tile_column - min_column) * 256
         scaled_mouse_y += (max_row - tile_row) * 256
+        //Log.d("latLongToxy", "scaled_mouse_x: ${scaled_mouse_x + map_x}, scaled_mouse_y: ${scaled_mouse_y + map_y}")
+        //Log.d("latLongToxy", "scaled_mouse_x: $scaled_mouse_x, scaled_mouse_y: $scaled_mouse_y")
         return Pair(scaled_mouse_x, scaled_mouse_y)
     }
+
+
 }
 
 class Pins() {
@@ -491,16 +414,25 @@ class Pins() {
             xa = (xa * n - tile_column) * 256
             ya = (ya * n - tile_row - 1) * -256
 
+
             x = xa + (tile_column - min_col) * 256
             y = ya + (max_rw - tile_row) * 256
 
         }
+
+
     }
 
     val listOfPins = mutableStateListOf<Pin>()
+    /*init {
+        listOfPins.add(Offset(50f, 50f))
+        listOfPins.add(Offset(150f, 250f))
+        listOfPins.add(Offset(450f, 150f))
+    }*/
 
     fun addPin(lat: Double, long: Double, min_column: Int, max_row: Int, zoom_level: Int) {
         listOfPins.add(Pin(lat, long, min_column , max_row, zoom_level))
+        //listOfPins.add(Offset(x.toFloat(), y.toFloat()))
     }
 
     fun clearPins() {
@@ -518,6 +450,8 @@ class Pins() {
             pin.latLongToXY(zoom_level, min_column, max_row)
         }
     }
+    // TODO: maybe
+    //fun drawPins()
 
     fun calculateDistance(): Double {
         var full_distance_knots: Double = 0.0
@@ -583,11 +517,16 @@ class Pins() {
 
 @Composable
 fun DraggableMap(context: Context) {
+
+
     var travel_time by remember {mutableStateOf("00:00:00")}
+
+
 
     var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, context)) }
     var zoom_level by remember {mutableIntStateOf(10)}
     var pins by remember {mutableStateOf(Pins())}
+
 
     val (max_zoom, min_zoom) = remember {
         val dbHelper = DatabaseHelper(context)
@@ -611,6 +550,7 @@ fun DraggableMap(context: Context) {
         Pair(max, min)
     }
 
+
     tileMap.mapLoading()
     var clicked by remember {mutableStateOf(false)}
     var scaleF by remember { mutableFloatStateOf(1f) }
@@ -631,6 +571,9 @@ fun DraggableMap(context: Context) {
                     )
 
 
+                    //pins.addPin((offset.x + tileMap.map_x).toFloat(), (offset.y + tileMap.map_y).toFloat())
+                    //pins.addPin((offset.x).toFloat(), (offset.y).toFloat())
+                    //val (lat, long) = tileMap.xyToLatLong(offset.x.toDouble(), offset.y.toDouble())
                     pins.addPin(lat, long, tileMap.min_column, tileMap.max_row, tileMap.zoom)
 
                     //Log.d("size of ", "Size of pins: ${pins.listOfPins.size}")
@@ -643,14 +586,16 @@ fun DraggableMap(context: Context) {
             }
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, rotation ->
-                    //Log.d("loaded tiles", "${tileMap.tiles.size}")
+                    Log.d("loaded tiles", "${tileMap.tiles.size}")
+                    //tileMap.map_x += (pan.x).toInt()
+                    //tileMap.map_y += (pan.y).toInt()
 
                     tileMap.map_x += pan.x / scaleF
                     tileMap.map_y += pan.y / scaleF
                     scaleF *= zoom
 
                     if (scaleF > 1.5f) { // zoom in
-                        //Log.d("scale", "ScaleF je veci of 1.5f $scaleF")
+                        Log.d("scale", "ScaleF je veci of 1.5f $scaleF")
                         if (zoom_level < max_zoom) {
                             val (lat, long) = tileMap.xyToLatLong()
                             zoom_level += 1
@@ -666,8 +611,11 @@ fun DraggableMap(context: Context) {
                         }
 
 
-                    } else if (scaleF < 0.75f) { // zoom out
-                        //Log.d("scale", "ScaleF je veci of 1.5f $scaleF")
+
+
+                    }
+                    else if (scaleF < 0.75f) { // zoom out
+                        Log.d("scale", "ScaleF je veci of 1.5f $scaleF")
                         if (zoom_level > min_zoom) {
                             val (lat, long) = tileMap.xyToLatLong()
                             zoom_level -= 1
@@ -683,7 +631,7 @@ fun DraggableMap(context: Context) {
                         }
 
                     }
-                    //Log.d("pinch zoom", "Scale: ${scaleF}")
+                    Log.d("pinch zoom", "Scale: ${scaleF}")
                 }
                 /*detectDragGestures { change, dragAmount ->
                     change.consume()
@@ -696,11 +644,9 @@ fun DraggableMap(context: Context) {
             }
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
                 .graphicsLayer(scaleX = scaleF, scaleY = scaleF)
         ) {
-            // Drawing tiles for the map
             for ((_, tile) in tileMap.tiles) {
                 tile.image?.let { bitmap ->
 
@@ -716,15 +662,22 @@ fun DraggableMap(context: Context) {
 
                     )
                 }
+
             }
 
-
-            // Drawing pins on the map
             Canvas(modifier = Modifier.fillMaxSize())
             {
+
                 if (pins.listOfPins.size > 0) {
                     //for (pin in pins.listOfPins) {
                     for (i in 0 until pins.listOfPins.size) {
+                        //Log.d("pin.x , pin.y", "${pin.x}, ${pin.y}")
+                        //Log.d("drawCircle", "drawing circle")
+                        //val x: Float = (pin.x + tileMap.map_x).toFloat()
+                        //val y: Float = (pin.y + tileMap.map_y).toFloat()
+                        //Log.d("xy", "$x, $y")
+                        //drawCircle(color = Color.Red, radius = 20f, center = Offset(pin.x,pin.y))
+                        //drawCircle(color = Color.Red, radius = 20f / scaleF, center = Offset((pin.x + tileMap.map_x).toFloat(), (pin.y + tileMap.map_y).toFloat()))
                         drawCircle(color = Color.Red, radius = 20f / scaleF, center = Offset((pins.listOfPins[i].x + tileMap.map_x).toFloat(), (pins.listOfPins[i].y + tileMap.map_y).toFloat()))
 
                         if (i > 0) {
@@ -738,7 +691,7 @@ fun DraggableMap(context: Context) {
                 }
             }
         }
-        /*
+
         // Bottom box of the screen
         Box(
             modifier = Modifier
@@ -752,10 +705,16 @@ fun DraggableMap(context: Context) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = 50.dp)
+
                 ,
                 //horizontalArrangement = Arrangement.spacedBy(15.dp)
                 horizontalArrangement = Arrangement.End
+
             ) {
+
+
+
+
                 Button(
                     onClick = {
                         pins.popPin()
@@ -780,6 +739,7 @@ fun DraggableMap(context: Context) {
                     )
                 }
 
+
                 Button(
                     onClick = {
                         pins.clearPins()
@@ -802,7 +762,10 @@ fun DraggableMap(context: Context) {
                         softWrap = false
                     )
                 }
+
+
             }
+
         }
 
 
@@ -844,6 +807,11 @@ fun DraggableMap(context: Context) {
                     //modifier = Modifier.offset(x = 20.dp, y = 50.dp),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold)
+                //Text("AAAAA")
+
+
+
+
 
                 var hoursInput by remember { mutableStateOf("") }
                 var minutesInput by remember { mutableStateOf("") }
@@ -866,13 +834,10 @@ fun DraggableMap(context: Context) {
                     horizontalArrangement = Arrangement.spacedBy(15.dp)
                 )
                 {
+
                     Box( // Hours input
                         modifier = Modifier
-                            .border(
-                                width = if (hoursInputFocused) 3.dp else 1.dp,
-                                Color.Gray,
-                                shape = RoundedCornerShape(5.dp)
-                            )
+                            .border(width = if(hoursInputFocused) 3.dp else 1.dp, Color.Gray, shape = RoundedCornerShape(5.dp))
                             .width(40.dp)
                             .height(40.dp),
                         contentAlignment = Alignment.Center
@@ -906,19 +871,17 @@ fun DraggableMap(context: Context) {
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(10.dp)
-                                .onFocusChanged { focusState ->
+                                .onFocusChanged{ focusState ->
                                     hoursInputFocused = focusState.isFocused
                                 }
                         )
                     }
 
+
+
                     Box( // Minutes input
                         modifier = Modifier
-                            .border(
-                                width = if (minutesInputFocused) 3.dp else 1.dp,
-                                Color.Gray,
-                                shape = RoundedCornerShape(5.dp)
-                            )
+                            .border(width = if(minutesInputFocused) 3.dp else 1.dp, Color.Gray, shape = RoundedCornerShape(5.dp))
                             .width(40.dp)
                             .height(40.dp),
                         contentAlignment = Alignment.Center
@@ -952,16 +915,61 @@ fun DraggableMap(context: Context) {
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(10.dp)
-                                .onFocusChanged { focusState ->
+                                .onFocusChanged{ focusState ->
                                     minutesInputFocused = focusState.isFocused
                                 }
                         )
                     }
+
                     Log.d("time", "time to travel: $travel_time")
                 }
             }
-        }*/
+        }
     }
 }
-*/
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    MapViewerTheme {
+        Greeting("Android")
+    }
+}
+ */
