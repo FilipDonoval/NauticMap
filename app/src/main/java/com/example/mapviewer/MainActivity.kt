@@ -117,8 +117,6 @@ class MainActivity : ComponentActivity() {
 
 
                 DraggableMap(this, parentTileMap = tileMap, onTileMapChange = { tileMap = it }, pins = pins)
-                //DraggableMap(this)
-
 
                 Overlay(pins = pins)
 
@@ -126,93 +124,5 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-
-@Composable
-fun Overlay(pins: Pins) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    )
-    {
-        TopBar(
-            modifier = Modifier.align(Alignment.TopStart),
-            pins = pins
-        )
-
-        BottomBar(
-            modifier = Modifier.align(Alignment.BottomStart)
-        )
-    }
-}
-
-
-@Composable
-fun TopBar(modifier: Modifier = Modifier, pins: Pins) {
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height = 250.dp)
-            .background(color = Color(255, 255, 255, 200))
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        event.changes.forEach { it.consume() }
-                    }
-                }
-            }
-    )
-    {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 25.dp)
-        )
-        {
-            Text(
-                text = "Distance: ${round(pins.calculateDistance() * 100) / 100} knots"
-            )
-            Row()
-            {
-                Button(
-                    modifier = Modifier
-                        .height(50.dp),
-                    onClick = {
-                        pins.clearPins()
-                    }
-                ) { Text("Clear")}
-                Button(
-                    modifier = Modifier
-                        .height(50.dp),
-                    onClick = {
-                        pins.popPin()
-                    }
-                ) { Text("Undo")}
-            }
-
-        }
-    }
-}
-
-@Composable
-fun BottomBar(modifier: Modifier = Modifier)
-{
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height = 250.dp)
-            .background(Color(200, 200, 200, 200))
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        event.changes.forEach { it.consume() }
-                    }
-                }
-            }
-    )
 }
 
