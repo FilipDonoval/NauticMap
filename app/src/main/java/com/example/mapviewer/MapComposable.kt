@@ -112,16 +112,12 @@ class Tile(val column: Int, val row: Int, val zoom: Int, private val context: Co
         if (cursor.moveToFirst()) {
             val blob = cursor.getBlob(0)
             bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.size)
-
-
         }
         cursor.close()
         db.close()
 
         return bitmap
     }
-
-
 }
 
 class TileMap(val zoom: Int, val map_x_init: Double = 0.0, val map_y_init: Double = 0.0, private val context: Context) {
@@ -137,12 +133,10 @@ class TileMap(val zoom: Int, val map_x_init: Double = 0.0, val map_y_init: Doubl
     val last_grid_row: Int = screenHeight / 2 / grid_offset
     val first_time = true*/
 
-
     val render_distance_x: Int = 3
     val render_area_x: Int = render_distance_x * 2 + 1
     val render_distance_y: Int = 6
     val render_area_y: Int = render_distance_y * 2 + 1
-
 
     val tiles = mutableMapOf<Pair<Int, Int>, Tile>()
 
@@ -301,8 +295,7 @@ class Pins() {
         return full_distance_knots
     }
 
-    fun calculateTime(speed: Double): String {
-        val distance = calculateDistance()
+    fun calculateTime(speed: Double, distance: Double = calculateDistance()): String {
         val hours: Int = (distance / speed).toInt()
         val minutes: Int = (((distance / speed) - hours) * 60).toInt()
         val seconds: Int = (((((distance / speed) - hours) * 60) - minutes) * 60).toInt()
@@ -344,13 +337,14 @@ class Pins() {
 
 
 @Composable
-fun DraggableMap(context: Context, parentTileMap: TileMap, onTileMapChange: (TileMap) -> Unit, pins: Pins) {
+//fun DraggableMap(context: Context, parentTileMap: TileMap, onTileMapChange: (TileMap) -> Unit, pins: Pins) {
 //fun DraggableMap(context: Context, parentTileMap: TileMap, onTileMapChange: (TileMap) -> Unit) {
 //fun DraggableMap(context: Context) {
+fun DraggableMap(context: Context, pins: Pins) {
     var travel_time by remember {mutableStateOf("00:00:00")}
 
-    var tileMap by remember { mutableStateOf(parentTileMap)}
-    //var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, context)) }
+    //var tileMap by remember { mutableStateOf(parentTileMap)}
+    var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, context)) }
     var zoom_level by remember {mutableIntStateOf(10)}
     //var pins by remember {mutableStateOf(Pins())}
 
@@ -377,9 +371,9 @@ fun DraggableMap(context: Context, parentTileMap: TileMap, onTileMapChange: (Til
     }
 
     tileMap.mapLoading()
-    var clicked by remember {mutableStateOf(false)}
+
     var scaleF by remember { mutableFloatStateOf(1f) }
-    val scope = rememberCoroutineScope()
+
     Box(
         Modifier
             .fillMaxSize()
@@ -395,22 +389,12 @@ fun DraggableMap(context: Context, parentTileMap: TileMap, onTileMapChange: (Til
                         (offset.y.toDouble() - tileMap.screenHeight / 2) / scaleF + tileMap.screenHeight / 2
                     )
 
-
                     pins.addPin(lat, long, tileMap.min_column, tileMap.max_row, tileMap.zoom)
-
-                    //Log.d("size of ", "Size of pins: ${pins.listOfPins.size}")
-                    /*
-                    clicked = true
-                    scope.launch {
-                        delay(500)
-                        clicked = false
-                    }*/
                 }
             }
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, rotation ->
                     //Log.d("loaded tiles", "${tileMap.tiles.size}")
-
                     tileMap.map_x += pan.x / scaleF
                     tileMap.map_y += pan.y / scaleF
                     scaleF *= zoom
@@ -451,14 +435,6 @@ fun DraggableMap(context: Context, parentTileMap: TileMap, onTileMapChange: (Til
                     }
                     //Log.d("pinch zoom", "Scale: ${scaleF}")
                 }
-                /*detectDragGestures { change, dragAmount ->
-                    change.consume()
-                    Log.d("loaded tiles", "${tileMap.tiles.size}")
-                    tileMap.map_x += (dragAmount.x).toInt()
-                    tileMap.map_y += (dragAmount.y).toInt()
-                }*/
-
-
             }
     ) {
         Box(
@@ -483,7 +459,6 @@ fun DraggableMap(context: Context, parentTileMap: TileMap, onTileMapChange: (Til
                     )
                 }
             }
-
 
             // Drawing pins on the map
             Canvas(modifier = Modifier.fillMaxSize())
@@ -729,5 +704,5 @@ fun DraggableMap(context: Context, parentTileMap: TileMap, onTileMapChange: (Til
         }*/
     }
 
-    onTileMapChange(tileMap)
+    //onTileMapChange(tileMap)
 }

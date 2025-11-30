@@ -17,7 +17,6 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.inputmethodservice.Keyboard
 import android.util.Log
 import androidx.annotation.Nullable
 import androidx.compose.foundation.Image
@@ -112,11 +111,12 @@ class MainActivity : ComponentActivity() {
             MapViewerTheme {
 
 
-                var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, this)) }
+                //var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, this)) }
                 var pins by remember {mutableStateOf(Pins())}
 
 
-                DraggableMap(this, parentTileMap = tileMap, onTileMapChange = { tileMap = it }, pins = pins)
+                DraggableMap(this, pins = pins)
+                //DraggableMap(this, parentTileMap = tileMap, onTileMapChange = { tileMap = it }, pins = pins)
 
                 Overlay(pins = pins)
 
