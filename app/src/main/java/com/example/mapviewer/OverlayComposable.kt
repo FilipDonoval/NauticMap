@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -158,7 +159,21 @@ fun BottomBar(modifier: Modifier = Modifier, pins: Pins)
                 fontSize = 16.sp
             )*/
             Spacer(modifier = Modifier.weight(1f))
+/*
+            Button(
+                onClick = {
+                    pins.placementActive = !pins.placementActive
+                    Log.d("dsajkllkjdas", "active/deactive: ${pins.placementActive}")
+                }
 
+            ){}*/
+            Checkbox(
+                checked = pins.placementActive.value,
+                onCheckedChange = {
+                    pins.placementActive.value = it
+                    Log.d("dsajkllkjdas", "checkbox: ${pins.placementActive.value}")
+                }
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),

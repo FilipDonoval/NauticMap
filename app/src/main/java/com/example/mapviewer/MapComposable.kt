@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -253,9 +254,13 @@ class Pins() {
     }
 
     val listOfPins = mutableStateListOf<Pin>()
+    //var placementActive: Boolean = false
+    val placementActive: MutableState<Boolean> = mutableStateOf(false)
 
     fun addPin(lat: Double, long: Double, min_column: Int, max_row: Int, zoom_level: Int) {
-        listOfPins.add(Pin(lat, long, min_column , max_row, zoom_level))
+        if (placementActive.value) {
+            listOfPins.add(Pin(lat, long, min_column , max_row, zoom_level))
+        }
     }
 
     fun clearPins() {
