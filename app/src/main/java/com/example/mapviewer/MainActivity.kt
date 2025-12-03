@@ -108,23 +108,22 @@ import java.util.jar.Manifest
 
 
 class MainActivity : ComponentActivity() {
+    val gpsData = GPSData(this, this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        setupLocation(this)
-        requestLocationPermission(this, this)
+
+        gpsData.startUp()
 
         setContent {
             MapViewerTheme {
-
-
                 //var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, this)) }
                 var pins by remember {mutableStateOf(Pins())}
 
 
                 DraggableMap(this, pins = pins)
-                //DraggableMap(this, parentTileMap = tileMap, onTileMapChange = { tileMap = it }, pins = pins)
 
                 Overlay(pins = pins)
 
@@ -142,13 +141,10 @@ class MainActivity : ComponentActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
 
-        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+        if (requestCode == gpsData.LOCATION_PERMISSION_REQUEST) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // User clicked "Allow"
-                getCurrentLocation()
+                gpsData.getCurrentLocation()
             } else {
-                // User denied — show explanation
-                //.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show()
                 Log.d("TAG", "permision denied")
             }
         }
@@ -158,14 +154,14 @@ class MainActivity : ComponentActivity() {
         super.onStop()
 
         Log.d("TAG", "paused")
-        locationManager!!.removeUpdates(locationListener!!)
+        gpsData.locationManager!!.removeUpdates(gpsData.locationListener!!)
     }
 
     override fun onStart() {
         super.onStart()
 
         Log.d("TAG", "started again")
-        getCurrentLocation()
+        gpsData.getCurrentLocation()
     }
 }
 
