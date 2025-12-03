@@ -14,9 +14,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.mapviewer.ui.theme.MapViewerTheme
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Build
 import android.util.Log
 import androidx.annotation.Nullable
 import androidx.compose.foundation.Image
@@ -98,6 +103,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.window.PopupProperties
+import androidx.core.app.ActivityCompat
+import java.util.jar.Manifest
 
 
 class MainActivity : ComponentActivity() {
@@ -105,7 +112,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-
+        setupLocation(this)
+        requestLocationPermission(this, this)
 
         setContent {
             MapViewerTheme {
@@ -123,6 +131,41 @@ class MainActivity : ComponentActivity() {
                 
             }
         }
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String?>,
+        grantResults: IntArray,
+        deviceId: Int
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // User clicked "Allow"
+                getCurrentLocation()
+            } else {
+                // User denied — show explanation
+                //.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show()
+                Log.d("TAG", "permision denied")
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        Log.d("TAG", "paused")
+        locationManager!!.removeUpdates(locationListener!!)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        Log.d("TAG", "started again")
+        getCurrentLocation()
     }
 }
 
