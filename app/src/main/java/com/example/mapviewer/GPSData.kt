@@ -14,6 +14,15 @@ class GPSData(val context: Context, val activity: MainActivity) {
     var locationListener: LocationListener? = null
     val LOCATION_PERMISSION_REQUEST = 1001  // number doesn't mean anything just for easy comparison
 
+    var lat = 44.45061
+    var long = 15.06069
+
+    var boat: Boat? = null
+    fun boata(boata: Boat)
+    {
+        boat = boata
+    }
+
     fun startUp() {
         setupLocation()
         requestLocationPermission()
@@ -22,7 +31,13 @@ class GPSData(val context: Context, val activity: MainActivity) {
     fun setupLocation(){
         locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager?
         locationListener = LocationListener { location ->
-            Log.d("TAG", "Current Location -  ${location.latitude}:${location.longitude}")
+            Log.d("TAG", "\n\n\n")
+            //Log.d("TAG", "Current Location -  ${location.latitude}:${location.longitude}")
+            lat += 0.01
+            long += 0.01
+            //boat?.updatePos(lat, long)
+            boat?.updatePos(location.latitude, location.longitude)
+            Log.d("TAG", "Lat: $lat, Long: $long")
             //locationManager!!.removeUpdates(locationListener)  // for stoping updates
             }
     }
@@ -30,7 +45,7 @@ class GPSData(val context: Context, val activity: MainActivity) {
     fun getCurrentLocation(){
         try {
             // Request location updates
-            locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, locationListener as LocationListener)
+            locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000L, 0f, locationListener as LocationListener)
             Log.d("TAG", "Location Request Successful")
         } catch(ex: SecurityException) {
             Log.d("TAG", "Security Exception, no location available")

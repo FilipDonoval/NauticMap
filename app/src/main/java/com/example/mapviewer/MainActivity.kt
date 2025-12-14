@@ -121,9 +121,15 @@ class MainActivity : ComponentActivity() {
             MapViewerTheme {
                 //var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, this)) }
                 var pins by remember {mutableStateOf(Pins())}
+                var boat by remember {mutableStateOf(Boat(44.45061, 15.06069))}
+                var boatSent by remember {mutableStateOf(false)}
+                if (boatSent == false) {
+                    gpsData.boata(boat)
+                    boatSent = true
+                }
+                //drawCircle(color = Color.Blue, radius = 30f / scaleF, center = Offset((44.45061 + tileMap.map_x).toFloat(), (15.06069 + tileMap.map_y).toFloat()))
 
-
-                DraggableMap(this, pins = pins)
+                DraggableMap(this, pins = pins, boat = boat)
 
                 Overlay(pins = pins)
 
