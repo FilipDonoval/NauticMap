@@ -47,8 +47,7 @@ import kotlin.math.sinh
 import kotlin.math.tan
 
 class DatabaseHelper(private val context: Context){
-    //private val dbName = "hr.mbtiles"
-    private val dbName = "precko.mbtiles"
+    private val dbName = "hr.mbtiles"
     private val dbPath = context.getDatabasePath(dbName).path
 
     fun copyDatabaseIfNeeded() {
@@ -407,11 +406,10 @@ fun DraggableMap(context: Context, pins: Pins, boat: Boat) {
     var travel_time by remember {mutableStateOf("00:00:00")}
 
     //var tileMap by remember { mutableStateOf(parentTileMap)}
-    //var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, context)) }
-    var tileMap by remember { mutableStateOf(TileMap(19, -1.0, -1.0, context)) }
-    //var zoom_level by remember {mutableIntStateOf(10)}
-
-    var zoom_level by remember {mutableIntStateOf(19)}
+    var tileMap by remember { mutableStateOf(TileMap(10, -2650.0, -1100.0, context)) }
+    //var tileMap by remember { mutableStateOf(TileMap(19, -1.0, -1.0, context)) }
+    var zoom_level by remember {mutableIntStateOf(10)}
+    //var zoom_level by remember {mutableIntStateOf(19)}
     //var pins by remember {mutableStateOf(Pins())}
 
     boat.init(tileMap.min_column, tileMap.max_row, tileMap.zoom)
